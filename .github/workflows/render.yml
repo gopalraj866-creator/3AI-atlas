@@ -1,0 +1,159 @@
+name: Render video
+
+# Actions tab -> "Render video" -> Run workflow.
+# 1) audio   : neural narration (edge-tts), SRT/VTT, procedural score, mastered to -14 LUFS
+# 2) plan    : splits the film into render chunks
+# 3) render  : one parallel job per chunk (Three.js/WebGL in headless Chrome, software GL)
+# 4) assemble: stream-copy join + mux the audio -> final MP4 per quality
+
+on:
+  workflow_dispatch:
+    inputs:
+      format:
+        description: "What to render"
+        type: choice
+        default: both
+        options: [both, long, short]
+      quality:
+        description: "Long-form quality (Shorts are always 1080x1920)"
+        type: choice
+        default: both
+        options: [both, 1080p, 4k]
+      preview:
+        description: "Quick low-res test render (960x540 / 540x960) - run this first"
+        type: boolean
+        default: false
+      burn_captions_long:
+        description: "Burn captions into the long video (Shorts always get them)"
+        type: boolean
+        default: false
+      voice:
+        description: "Edge neural voice (e.g. en-US-AndrewNeural, en-US-GuyNeural, en-GB-RyanNeural, en-US-AriaNeural)"
+        type: string
+        default: en-US-AndrewNeural
+      rate:
+        description: "Speech rate (e.g. -4%, +0%, +6%)"
+        type: string
+        default: "-4%"
+      fps:
+        description: "Frame rate"
+        type: choice
+        default: "30"
+        options: ["30", "24", "60"]
+      publish_release:
+        description: "Also attach the finished files to a GitHub Release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: System packages
+        run: sudo apt-get update -y && sudo apt-get install -y ffmpeg espeak-ng
+      - name: Python packages
+        run: pip install numpy scipy edge-tts
+      - name: Build narration, subtitles, score and master (long)
+        if: ${{ inputs.format != 'short' }}
+        run: python3 audio/build_audio.py --format long --engine auto --voice "${{ inputs.voice }}" --rate "${{ inputs.rate }}" --out build/audio
+      - name: Build narration, subtitles, score and master (short)
+        if: ${{ inputs.format != 'long' }}
+        run: python3 audio/build_audio.py --format short --engine auto --voice "${{ inputs.voice }}" --rate "${{ inputs.rate }}" --out build/audio
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audio
+          path: |
+            build/audio
+            !build/audio/cache
+          retention-days: 14
+
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      groups: ${{ steps.plan.outputs.groups }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - id: plan
+        run: node render/plan.mjs --format "${{ inputs.format }}" --quality "${{ inputs.quality }}" --fps "${{ inputs.fps }}" --preview "${{ inputs.preview }}"
+
+  render:
+    needs: [audio, plan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    name: render ${{ matrix.name }} (${{ matrix.scene }} ${{ matrix.w }}x${{ matrix.h }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with: { chrome-version: stable }
+      - name: System packages
+        run: sudo apt-get update -y && sudo apt-get install -y ffmpeg fonts-inter fonts-noto-core fonts-dejavu-core
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with: { name: audio, path: build/audio }
+      - name: Render segment
+        env:
+          SEG: ${{ toJSON(matrix) }}
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          BURN=0
+          if [ "${{ matrix.format }}" = "short" ] || [ "${{ inputs.burn_captions_long }}" = "true" ]; then BURN=1; fi
+          node render/render-segment.mjs --out out --cues "build/audio/cues.${{ matrix.format }}.json" --captions $BURN
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seg-${{ matrix.group }}-${{ matrix.idx }}
+          path: out/${{ matrix.name }}.mp4
+          compression-level: 0
+          retention-days: 3
+
+  assemble:
+    needs: [render, plan, audio]
+    if: ${{ !cancelled() && needs.render.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.groups) }}
+    name: assemble ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: System packages
+        run: sudo apt-get update -y && sudo apt-get install -y ffmpeg
+      - uses: actions/download-artifact@v4
+        with: { name: audio, path: build/audio }
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: seg-${{ matrix.group }}-*
+          path: segs
+          merge-multiple: true
+      - name: Join + mux
+        run: bash scripts/assemble.sh "${{ matrix.group }}" segs build/audio dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ matrix.group }}
+          path: dist
+          compression-level: 0
+          retention-days: 30
+      - name: Attach to release
+        if: ${{ inputs.publish_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: video-${{ github.run_number }}
+          name: "3I/ATLAS video #${{ github.run_number }}"
+          files: dist/*

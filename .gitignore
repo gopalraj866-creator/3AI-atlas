@@ -1,0 +1,8 @@
+node_modules/
+build/
+out/
+dist/
+segs/
+stills/
+*.partial.mp4
+__pycache__/

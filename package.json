@@ -1,0 +1,16 @@
+{
+  "name": "interstellar-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "3I/ATLAS + Beta Pictoris b radio signal - 8 minute Three.js documentary, rendered in GitHub Actions (4K / 1080p / Shorts)",
+  "type": "module",
+  "scripts": {
+    "plan": "node render/plan.mjs",
+    "still": "node render/still.mjs",
+    "render:segment": "node render/render-segment.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^23.11.1",
+    "three": "^0.170.0"
+  }
+}

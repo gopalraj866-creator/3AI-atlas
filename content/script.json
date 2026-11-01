@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "title": "3I/ATLAS Just Got Weirder... and a Radio Signal From 63 Light-Years Away",
+    "voice": "en-US-AndrewNeural",
+    "rate": "-4%",
+    "pitch": "-2Hz"
+  },
+  "pronounce": {
+    "3I/ATLAS": "Three-I Atlas",
+    "ATLAS": "Atlas",
+    "Oumuamua": "Oh-moo-ah-moo-ah",
+    "Pictoris": "Pick-tor-iss",
+    "MeerKAT": "Meer-kat",
+    "ECMI": "E C M I",
+    "Webb's": "Webb's"
+  },
+  "formats": {
+    "long": {
+      "width": 16, "height": 9, "captionChars": 42,
+      "blocks": [
+        { "id": "s01", "scene": "s01_hook", "t0": 0, "t1": 30, "mood": "mystery", "lines": [
+          "Something ancient just flew through our solar system, and the more we look, the stranger it gets.",
+          "Astronomers now say this interstellar comet may be ten billion years old.",
+          "And at the same time, a radio signal from sixty-three light-years away has the internet asking one question.",
+          "Is it aliens?",
+          "Stay with me, because the real answer is even more fascinating."
+        ]},
+        { "id": "s02", "scene": "s02_discovery", "t0": 0, "t1": 50, "mood": "wonder", "lines": [
+          "In July twenty twenty-five, a NASA-funded telescope in Chile, part of the ATLAS survey, spotted a faint dot moving far too fast to be one of ours.",
+          "Its orbit was a hyperbola, an open curve that never loops back. That is the signature of an object from interstellar space.",
+          "It became only the third interstellar visitor we have ever confirmed, after Oumuamua in twenty seventeen, and Borisov in twenty nineteen.",
+          "Racing at roughly one hundred thirty-seven thousand miles per hour, it was also the biggest and brightest of the three.",
+          "Its icy core is estimated at somewhere between four hundred meters and five and a half kilometers across."
+        ]},
+        { "id": "s03", "scene": "s03_flyby", "t0": 0, "t1": 50, "mood": "journey", "lines": [
+          "Here is its route through our neighborhood.",
+          "Around October twenty-ninth, twenty twenty-five, it reached perihelion, its closest point to the Sun, about two hundred and three million kilometers out, just inside the orbit of Mars.",
+          "For weeks it hid behind the Sun, invisible from Earth.",
+          "Then, on December nineteenth, it made its closest approach to Earth, a safe distance of about two hundred seventy million kilometers.",
+          "No threat. But a perfect chance for every major telescope to take a look.",
+          "Webb, Hubble, and spacecraft around Mars and Jupiter all turned to watch."
+        ]},
+        { "id": "s04", "scene": "s04_weird", "t0": 0, "t1": 60, "mood": "tension", "lines": [
+          "And that is where it got weird.",
+          "After rounding the Sun, 3I/ATLAS brightened dramatically, and turned bluer.",
+          "Astronomers then imaged at least seven jets of gas and dust streaming out in different directions.",
+          "Some pointed toward the Sun, forming what look like anti-tails.",
+          "Its motion also showed a small push beyond gravity, which comets can do when gas vents from the surface.",
+          "That fueled wild headlines. Harvard's Avi Loeb even floated the idea of artificial thrusters.",
+          "But NASA says the comet behaves like a natural one. No unexplained slowdowns, no course changes. Right where gravity says it should be.",
+          "A weird comet, yes. A spaceship? No."
+        ]},
+        { "id": "s05", "scene": "s05_webb", "t0": 0, "t1": 60, "mood": "science", "lines": [
+          "Then the James Webb Space Telescope took a look.",
+          "In December twenty twenty-five, as the comet moved away from the Sun, Webb's infrared spectrograph read its chemical fingerprint.",
+          "The results, published in Nature in June twenty twenty-six, are unlike any comet in our solar system.",
+          "First, deuterium, also known as heavy hydrogen. 3I/ATLAS has about thirty times more of it than comets born around our Sun.",
+          "That kind of heavy water ice only survives if it stays deeply frozen, and never gets long-term warmth.",
+          "Second, carbon. Compared to solar system comets, 3I/ATLAS has far less of the heavy isotope, carbon thirteen.",
+          "Carbon thirteen builds up over time, as generations of stars live and die. Less of it means an earlier, more pristine galaxy."
+        ]},
+        { "id": "s06", "scene": "s06_age", "t0": 0, "t1": 60, "mood": "epic", "lines": [
+          "Put those clues together, and you get a stunning age.",
+          "Researchers estimate 3I/ATLAS formed ten to twelve billion years ago, during what astronomers call cosmic noon, when star formation in the universe was at its peak.",
+          "Our Sun and planets are only about four and a half billion years old. This comet may be more than twice as old.",
+          "The universe itself is thirteen point eight billion years old, so this visitor is nearly as old as time itself.",
+          "One April study even suggests it may have been born before its own star.",
+          "Its exact age is still an estimate, but researchers say it is almost certainly older than anything we have from our own solar system."
+        ]},
+        { "id": "s07", "scene": "s07_pivot", "t0": 0, "t1": 20, "mood": "transition", "lines": [
+          "Now the comet is outbound, never to return.",
+          "But another story from deep space is making headlines.",
+          "And this one involves radio waves, from sixty-three light-years away."
+        ]},
+        { "id": "s08", "scene": "s08_detect", "t0": 0, "t1": 60, "mood": "signal", "lines": [
+          "In a preprint posted on September fifteenth, astronomers reported something no one had confirmed before.",
+          "Radio waves coming directly from a planet outside our solar system.",
+          "The planet is Beta Pictoris b, a young gas giant about ten to twelve times the mass of Jupiter, orbiting a star sixty-three light-years away.",
+          "The team used MeerKAT, an array of sixty-four radio dishes in South Africa.",
+          "And this was not a one-off. They recorded repeating bursts, at multiple frequencies.",
+          "Crucially, they traced the emission to the planet itself, not the star it orbits. That has been the big hurdle for earlier searches.",
+          "It is the first direct detection of radio emission from an exoplanet."
+        ]},
+        { "id": "s09", "scene": "s09_aurora", "t0": 0, "t1": 40, "mood": "aurora", "lines": [
+          "So what is making the signal?",
+          "Auroras. Just like Earth's northern lights, but on a monstrous scale.",
+          "Charged particles spiral along the planet's magnetic field and produce radio waves, the same way they do at Jupiter.",
+          "To reach the frequencies detected, the field has to be incredibly strong. At least two hundred times stronger than Jupiter's.",
+          "Beta Pictoris b spins once every eight to nine hours, which may help power it."
+        ]},
+        { "id": "s10", "scene": "s10_notaliens", "t0": 0, "t1": 30, "mood": "resolve", "lines": [
+          "Harvard's Edo Berger acknowledged that radio signals make people think of the search for extraterrestrials.",
+          "But the team is clear: this is evidence of a colossal magnetic field, not intelligent life.",
+          "Earlier alerts, like the Wow signal in nineteen seventy-seven, or a twenty fifteen blip from a star ninety-four light-years away, never turned into confirmed messages."
+        ]},
+        { "id": "s11", "scene": "s11_outro", "t0": 0, "t1": 20, "mood": "outro", "lines": [
+          "Two stories: an ancient comet from a vanished era, and a planet broadcasting in radio.",
+          "Neither is aliens. Both are real science rewriting what we know.",
+          "Subscribe, and tell me in the comments which one blew your mind more."
+        ]}
+      ]
+    },
+    "short": {
+      "width": 9, "height": 16, "captionChars": 20,
+      "blocks": [
+        { "id": "h1", "scene": "s01_hook", "t0": 0, "t1": 7, "mood": "mystery", "lines": [
+          "A comet older than our Sun. A radio signal from another world."
+        ]},
+        { "id": "h2", "scene": "s04_weird", "t0": 14, "t1": 24, "mood": "tension", "lines": [
+          "3I/ATLAS brightened, turned blue, and sprouted at least seven jets. NASA says it is natural."
+        ]},
+        { "id": "h3", "scene": "s05_webb", "t0": 32, "t1": 42, "mood": "science", "lines": [
+          "Webb found thirty times more heavy hydrogen than solar system comets."
+        ]},
+        { "id": "h4", "scene": "s06_age", "t0": 14, "t1": 24, "mood": "epic", "lines": [
+          "That points to a birth ten to twelve billion years ago. Before our Sun existed."
+        ]},
+        { "id": "h5", "scene": "s08_detect", "t0": 16, "t1": 26, "mood": "signal", "lines": [
+          "Meanwhile, MeerKAT caught radio waves from a planet sixty-three light-years away."
+        ]},
+        { "id": "h6", "scene": "s10_notaliens", "t0": 10, "t1": 17, "mood": "resolve", "lines": [
+          "Aliens? No. It is a magnetic field two hundred times Jupiter's."
+        ]},
+        { "id": "h7", "scene": "s11_outro", "t0": 12, "t1": 16, "mood": "outro", "lines": [
+          "Follow for more space science."
+        ]}
+      ]
+    }
+  }
+}

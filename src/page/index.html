@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>render</title>
+<style>
+  html,body{margin:0;background:#000;overflow:hidden}
+  #stage{position:relative;width:100vw;height:100vh;overflow:hidden;background:#000;color:#fff;
+    font-family:Inter,"Noto Sans","DejaVu Sans",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #ui,#caps{position:absolute;inset:0;pointer-events:none}
+  #fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+  .cue{position:absolute;opacity:0;white-space:pre-line}
+  .cue .kicker{font:600 .95rem/1.2 "DejaVu Sans Mono",ui-monospace,monospace;letter-spacing:.28em;text-transform:uppercase;color:#7fd7ff;margin-bottom:.7rem;text-shadow:0 0 .8rem rgba(80,190,255,.6)}
+  .cue .h{font-weight:800;font-size:4.4rem;line-height:1.02;letter-spacing:-.01em;text-shadow:0 .15rem 1.6rem rgba(0,0,0,.85)}
+  .cue .sub{font-weight:400;font-size:1.45rem;line-height:1.3;opacity:.86;margin-top:.8rem;text-shadow:0 .1rem 1rem rgba(0,0,0,.9)}
+  .cue .num{font-weight:800;font-size:7.6rem;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,#fff 10%,#8fdcff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 1.4rem rgba(60,170,255,.55))}
+  .cue .num.hot{background:linear-gradient(180deg,#fff 10%,#ffb36b 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 1.4rem rgba(255,140,60,.55))}
+  .cue .label{font:600 1.35rem/1.25 Inter,"Noto Sans","DejaVu Sans",sans-serif;opacity:.92;margin-top:.5rem;max-width:30rem;text-shadow:0 .1rem 1rem rgba(0,0,0,.9)}
+  .cue.chip{font:600 .95rem/1.2 "DejaVu Sans Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;padding:.7rem 1.1rem;
+    border:1px solid rgba(160,220,255,.7);background:rgba(6,16,34,.62);border-radius:.3rem;box-shadow:0 0 1.2rem rgba(60,160,255,.25);backdrop-filter:blur(2px)}
+  .cue.chip.warn{border-color:rgba(255,170,90,.8);box-shadow:0 0 1.2rem rgba(255,140,60,.25);color:#ffd9b0}
+  .cue.chip.ok{border-color:rgba(120,255,190,.8);box-shadow:0 0 1.2rem rgba(60,255,160,.22)}
+  .cue.source{font:400 .8rem/1.3 "DejaVu Sans Mono",ui-monospace,monospace;letter-spacing:.06em;opacity:.0;color:#cfe6ff;text-transform:none}
+  .cue.lbl{left:0;top:0;font:600 1rem/1.15 "DejaVu Sans Mono",ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
+    padding-left:1.1rem;text-shadow:0 0 .6rem #000,0 0 1rem #000}
+  .cue.lbl::before{content:"";position:absolute;left:0;top:.35rem;width:.55rem;height:.55rem;border-radius:50%;background:var(--c,#7fd7ff);box-shadow:0 0 .8rem var(--c,#7fd7ff)}
+  .cue.lbl small{display:block;font-weight:400;opacity:.75;letter-spacing:.05em;text-transform:none;margin-top:.25rem;font-size:.85rem}
+  .cue.list{font-weight:600;font-size:1.55rem;line-height:1.3}
+  .cue.list .it{display:flex;gap:.9rem;align-items:flex-start;margin:.7rem 0;opacity:0;text-shadow:0 .1rem 1rem rgba(0,0,0,.9)}
+  .cue.list .it b{color:#6dffb4;font-weight:800}
+  .cue.list .it.bad b{color:#ff7b6b}
+  .cue.list .hd{font:600 .95rem/1.2 "DejaVu Sans Mono",ui-monospace,monospace;letter-spacing:.28em;text-transform:uppercase;color:#7fd7ff;margin-bottom:.9rem}
+  /* positions (landscape) */
+  [data-pos=tl]{left:4rem;top:3.4rem}   [data-pos=tc]{left:50%;top:3.4rem;transform:translateX(-50%);text-align:center}
+  [data-pos=tr]{right:4rem;top:3.4rem;text-align:right}
+  [data-pos=cl]{left:4rem;top:50%;transform:translateY(-50%)}  [data-pos=c]{left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
+  [data-pos=cr]{right:4rem;top:50%;transform:translateY(-50%);text-align:right}
+  [data-pos=bl]{left:4rem;bottom:9.5rem}   [data-pos=bc]{left:50%;bottom:9.5rem;transform:translateX(-50%);text-align:center}
+  [data-pos=br]{right:4rem;bottom:9.5rem;text-align:right}
+  [data-pos=src]{left:4rem;bottom:2rem}
+  [data-pos=lc]{left:50%;top:32%;transform:translate(-50%,-50%);text-align:center}
+  /* captions */
+  #caps .cap{position:absolute;left:50%;bottom:3.2rem;transform:translateX(-50%);max-width:70%;text-align:center;opacity:0;
+    font-weight:600;font-size:1.9rem;line-height:1.3;padding:.45rem 1.1rem;border-radius:.5rem;background:rgba(0,0,0,.55);text-shadow:0 .1rem .4rem #000}
+  /* portrait / shorts */
+  body.portrait [data-pos=tl],body.portrait [data-pos=tr],body.portrait [data-pos=tc]{left:50%;right:auto;top:7%;transform:translateX(-50%);text-align:center;width:88%}
+  body.portrait [data-pos=cl],body.portrait [data-pos=cr],body.portrait [data-pos=c]{left:50%;right:auto;top:50%;transform:translate(-50%,-50%);text-align:center;width:88%}
+  body.portrait [data-pos=lc]{width:88%;top:30%}
+  body.portrait [data-pos=bl],body.portrait [data-pos=br],body.portrait [data-pos=bc]{left:50%;right:auto;bottom:30%;transform:translateX(-50%);text-align:center;width:88%}
+  body.portrait [data-pos=src]{left:50%;transform:translateX(-50%);bottom:12%;text-align:center;width:80%}
+  body.portrait .cue .h{font-size:4rem} body.portrait .cue .num{font-size:6.2rem} body.portrait .cue .label{margin-left:auto;margin-right:auto;font-size:1.5rem}
+  body.portrait .cue.list{font-size:1.6rem;text-align:left}
+  body.portrait #caps .cap{bottom:19%;max-width:88%;font-size:3.2rem;font-weight:800;background:none;text-shadow:0 .15rem .9rem #000,0 0 .3rem #000;-webkit-text-stroke:.08rem rgba(0,0,0,.7);paint-order:stroke fill}
+  body.portrait .cue.chip{max-width:80%;text-align:center}
+</style>
+<script type="importmap">
+{ "imports": { "three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage"><canvas id="gl"></canvas><div id="ui"></div><div id="caps"><div class="cap"></div></div><div id="fade"></div></div>
+<script type="module" src="/src/page/main.js"></script>
+</body>
+</html>
