@@ -55,7 +55,12 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--format', required=True, choices=['long', 'short']); ap.add_argument('--out', default='build/audio')
     ap.add_argument('--engine', default='auto'); ap.add_argument('--voice'); ap.add_argument('--rate'); ap.add_argument('--no-master', action='store_true')
     ap.add_argument('--max-blocks', type=int, default=0, help='debug: only first N blocks')
-    a = ap.parse_args()
+    # allow values that start with '-' (e.g. --rate -4%) by joining them to their flag
+    argv = sys.argv[1:]; fixed = []
+    for i, x in enumerate(argv):
+        if i > 0 and argv[i - 1] in ('--rate', '--voice') and not x.startswith('--') and not fixed[-1].startswith('--rate=') and '=' not in fixed[-1]: fixed[-1] += '=' + x
+        else: fixed.append(x)
+    a = ap.parse_args(fixed)
     script = json.load(open(os.path.join(ROOT, 'content/script.json'), encoding='utf-8'))
     fmt = script['formats'][a.format]; meta = script['meta']
     cfg = {'voice': a.voice or meta['voice'], 'rate': a.rate or meta['rate'], 'pitch': meta['pitch'], 'pron': script['pronounce']}
