@@ -62,10 +62,10 @@ jobs:
         run: pip install numpy scipy edge-tts
       - name: Build narration, subtitles, score and master (long)
         if: ${{ inputs.format != 'short' }}
-        run: python3 audio/build_audio.py --format long --engine auto --voice "${{ inputs.voice }}" --rate "${{ inputs.rate }}" --out build/audio
+        run: python3 audio/build_audio.py --format long --engine auto --voice="${{ inputs.voice }}" --rate="${{ inputs.rate }}" --out build/audio
       - name: Build narration, subtitles, score and master (short)
         if: ${{ inputs.format != 'long' }}
-        run: python3 audio/build_audio.py --format short --engine auto --voice "${{ inputs.voice }}" --rate "${{ inputs.rate }}" --out build/audio
+        run: python3 audio/build_audio.py --format short --engine auto --voice="${{ inputs.voice }}" --rate="${{ inputs.rate }}" --out build/audio
       - uses: actions/upload-artifact@v4
         with:
           name: audio
