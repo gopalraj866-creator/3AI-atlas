@@ -1,1 +1,66 @@
+name: Assemble from an earlier render run
 
+# Use this when a "Render video" run finished rendering but its assemble step failed,
+# or when you only want to re-join / re-mux without re-rendering anything.
+# Segment artifacts are kept for 3 days, the audio artifact for 14 days.
+#
+# Actions -> "Assemble from an earlier render run" -> Run workflow -> paste the run ID.
+# The run ID is the number at the end of the old run's URL: .../actions/runs/<RUN_ID>
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run ID of the earlier 'Render video' run (number at the end of its URL)"
+        type: string
+        required: true
+      group:
+        description: "Which video to assemble"
+        type: choice
+        default: long-4k
+        options: [long-4k, long-1080p, short-shorts]
+      publish_release:
+        description: "Also attach the finished files to a GitHub Release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: System packages
+        run: sudo apt-get update -y && sudo apt-get install -y ffmpeg
+      - uses: actions/download-artifact@v4
+        with:
+          name: audio
+          path: build/audio
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: seg-${{ inputs.group }}-*
+          path: segs
+          merge-multiple: true
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Join + mux
+        run: bash scripts/assemble.sh "${{ inputs.group }}" segs build/audio dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ inputs.group }}
+          path: dist
+          compression-level: 0
+          retention-days: 30
+      - name: Attach to release
+        if: ${{ inputs.publish_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: video-${{ github.run_number }}
+          name: "3I/ATLAS video #${{ github.run_number }}"
+          files: dist/*
