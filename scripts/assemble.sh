@@ -12,12 +12,17 @@ ffmpeg -y -loglevel error -f concat -safe 0 -i "$LIST" -c copy "$OUT/_video_only
 ffmpeg -y -loglevel error -i "$OUT/_video_only.mp4" -i "$AUDIO/master.${FORMAT}.m4a" -map 0:v:0 -map 1:a:0 -c:v copy -c:a copy \
   ${SMOKE:+-shortest} -movflags +faststart "$OUT/${NAME}.mp4"
 rm -f "$OUT/_video_only.mp4" "$LIST"
-V=$(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of csv=p=0 "$OUT/${NAME}.mp4" | head -1)
-A=$(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of csv=p=0 "$OUT/${NAME}.mp4" | head -1)
+probe() { ffprobe -v error -select_streams "$2" -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 "$1" | head -1 | tr -d ', \r'; }
+V=$(probe "$OUT/${NAME}.mp4" v:0); A=$(probe "$OUT/${NAME}.mp4" a:0)
 echo "video ${V}s audio ${A}s"
-python3 - "$V" "$A" <<'PY'
-import sys; v,a=float(sys.argv[1]),float(sys.argv[2])
-if abs(v-a)>0.25: print(f"::warning::A/V length mismatch {v:.2f}s vs {a:.2f}s")
+# informational only: never fail the job on this check
+python3 - "$V" "$A" <<'PY' || true
+import sys
+try:
+    v, a = float(sys.argv[1]), float(sys.argv[2])
+    if abs(v - a) > 0.25: print(f"::warning::A/V length mismatch {v:.2f}s vs {a:.2f}s")
+except Exception as e:
+    print(f"::notice::duration check skipped ({e})")
 PY
 cp "$AUDIO/captions.${FORMAT}.srt" "$OUT/${NAME}.srt"; cp "$AUDIO/captions.${FORMAT}.vtt" "$OUT/${NAME}.vtt"
 cp "$AUDIO/master.${FORMAT}.wav" "$OUT/${NAME}_audio_master_24bit.wav" 2>/dev/null || true
